@@ -6,8 +6,7 @@ from PIL import Image, ImageTk
 from threading import Thread
 from ttkthemes import ThemedTk
 
-# test comment  
-
+# Function to get the absolute path
 def get_absolute_path(relative_path):
     """Get the absolute path for files inside the .exe and when running normally."""
     base_path = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
@@ -48,7 +47,7 @@ class LoginWindow:
         password = self.password_entry.get()
 
         # Dummy validation (replace with actual logic)
-        if username == "admin" and password == "password":
+        if username == "admin" and password == "123":
             self.root.destroy()  # Close the login window
             self.open_main_app()  # Open the main application
         else:
@@ -65,7 +64,6 @@ class MainApp:
         self.root.title("CGTTI Alumni Association")
         self.root.geometry("1000x600")
         self.root.state("zoomed")
-        
         self.root.iconbitmap(get_absolute_path("asesst/CG.ico"))
         self.current_frame = None
         self.menu_bar = None
@@ -124,7 +122,7 @@ class MainApp:
         self.dashboard_menu = tk.Menu(self.menu_bar, tearoff=0)
         self.dashboard_menu.add_command(label="Dashboard", command=self.show_dashboard)
         
-        # Dashboard menu
+        # Excel menu
         self.excel_menu = tk.Menu(self.menu_bar, tearoff=0)
         self.excel_menu.add_command(label="EXCEL", command=self.show_EXCEL)
         
@@ -149,7 +147,6 @@ class MainApp:
         from excel import DataImportFilterPage
         self.switch_frame(DataImportFilterPage)
         
-        
     def show_dashboard(self):
         from all_member import TradeDashboard
         self.switch_frame(TradeDashboard)
@@ -162,14 +159,16 @@ class MainApp:
         """Destroy the current frame and load a new one."""
         if self.current_frame:
             self.current_frame.destroy()
+
+        # Create a new frame and set it as the current frame
         self.current_frame = ttk.Frame(self.root)
         self.current_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Pass only the parent argument to AdminRegistration and MemberRegistration
+        # Initialize the new frame with the correct arguments
         if FrameClass.__name__ in ["AdminRegistration", "DataImportFilterPage", "MemberRegistration"]:
             FrameClass(self.current_frame)  # Only pass parent
         else:
-            FrameClass(self.current_frame, self)  # Pass both parent and controller for other frames
+            FrameClass(self.current_frame, self)  # Pass both parent and controller
 
 if __name__ == "__main__":
     root = ThemedTk(theme="arc")
