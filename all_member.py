@@ -40,7 +40,7 @@ class TradeDashboard:
         ]
 
         for trade in trades:
-            self.trade_labels[trade] = ttk.Label(trade_frame, text=f"{trade}: 0", font=("Arial", 10))
+            self.trade_labels[trade] = ttk.Label(trade_frame, text=f"{trade}: 0", font=("Arial", 10, "bold"))
             self.trade_labels[trade].pack(anchor="w", pady=2)
 
         # Frame for total counts
@@ -54,20 +54,20 @@ class TradeDashboard:
         payment_frame = ttk.LabelFrame(main_frame, text="Payment Status", padding=10)
         payment_frame.pack(fill="x", pady=10)
 
-        self.paid_label = ttk.Label(payment_frame, text="Paid Members: 0", font=("Arial", 10))
+        self.paid_label = ttk.Label(payment_frame, text="Paid Members: 0", font=("Arial", 10, "bold"))
         self.paid_label.pack(anchor="w", pady=2)
 
-        self.non_paid_label = ttk.Label(payment_frame, text="Non-Paid Members: 0", font=("Arial", 10))
+        self.non_paid_label = ttk.Label(payment_frame, text="Non-Paid Members: 0", font=("Arial", 10, "bold"))
         self.non_paid_label.pack(anchor="w", pady=2)
 
         # Frame for living status
         living_frame = ttk.LabelFrame(main_frame, text="Living Status", padding=10)
         living_frame.pack(fill="x", pady=10)
 
-        self.living_label = ttk.Label(living_frame, text="Living Members: 0", font=("Arial", 10))
+        self.living_label = ttk.Label(living_frame, text="Living Members: 0", font=("Arial", 10, "bold"))
         self.living_label.pack(anchor="w", pady=2)
 
-        self.deceased_label = ttk.Label(living_frame, text="Deceased Members: 0", font=("Arial", 10))
+        self.deceased_label = ttk.Label(living_frame, text="Deceased Members: 0", font=("Arial", 10, "bold"))
         self.deceased_label.pack(anchor="w", pady=2)
 
     def load_data(self):

@@ -3,7 +3,8 @@ from tkinter import ttk, messagebox
 import os
 import sys
 from PIL import Image, ImageTk
-from ttkthemes import ThemedTk  # Import ThemedTk from ttkthemes
+from threading import Thread
+from ttkthemes import ThemedTk
 
 def get_absolute_path(relative_path):
     """Get the absolute path for files inside the .exe and when running normally."""
@@ -67,41 +68,47 @@ class MainApp:
         self.current_frame = None
         self.menu_bar = None
         self.build_menu()
-        self.image_path = get_absolute_path("asesst/cgtti.jpg")  # Use the function to get the correct path
-        self.set_background_image()
+
+        # Load background image in a separate thread
+        self.image_path = get_absolute_path("asesst/cgtti.jpg")
+        self.bg_image = None
+        self.bg_label = None
+
+        # Start the background image loading in a separate thread
+        Thread(target=self.set_background_image).start()
+
         self.root.bind("<Configure>", self.on_resize)  # Bind the resize event
 
     def set_background_image(self):
-        """Set the background image for the application."""
+        """Set the background image for the application in a separate thread to avoid blocking the UI."""
         try:
             # Load the image
-            self.original_image = Image.open(self.image_path)
-            self.bg_image = ImageTk.PhotoImage(self.original_image)
+            original_image = Image.open(self.image_path)
+            resized_image = original_image.resize((self.root.winfo_width(), self.root.winfo_height()), Image.Resampling.LANCZOS)
+            self.bg_image = ImageTk.PhotoImage(resized_image)
             
-            # Create a label with the image
-            self.bg_label = tk.Label(self.root, image=self.bg_image)
-            self.bg_label.place(relwidth=1, relheight=1)
-            
-            # Ensure the label is behind other widgets
-            self.bg_label.lower()
+            # Create a label with the image in the main thread to avoid issues with Tkinter and threading
+            self.root.after(0, self._set_image_label)
         except Exception as e:
             print(f"Error loading background image: {e}")
 
+    def _set_image_label(self):
+        """Create the label with the background image."""
+        if self.bg_image:
+            self.bg_label = tk.Label(self.root, image=self.bg_image)
+            self.bg_label.place(relwidth=1, relheight=1)
+            self.bg_label.lower()
+
     def on_resize(self, event):
         """Handle window resize event."""
-        try:
-            # Get the new window size
-            new_width = event.width
-            new_height = event.height
-            
-            # Resize the image using LANCZOS resampling
-            resized_image = self.original_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
-            self.bg_image = ImageTk.PhotoImage(resized_image)
-            
-            # Update the label with the new image
-            self.bg_label.config(image=self.bg_image)
-        except Exception as e:
-            print(f"Error resizing background image: {e}")
+        if self.bg_image:
+            try:
+                # Resize the background image when the window is resized
+                resized_image = self.bg_image._PhotoImage__photo.zoom(event.width // self.bg_image.width(), event.height // self.bg_image.height())
+                self.bg_image = resized_image
+                self.bg_label.config(image=self.bg_image)
+            except Exception as e:
+                print(f"Error resizing background image: {e}")
 
     def build_menu(self):
         """Build the navigation menu."""
@@ -115,20 +122,18 @@ class MainApp:
         self.dashboard_menu = tk.Menu(self.menu_bar, tearoff=0)
         self.dashboard_menu.add_command(label="Dashboard", command=self.show_dashboard)
         
-        # Admin ragistation menu
+        # Admin registration menu
         self.Admin_menu = tk.Menu(self.menu_bar, tearoff=0)
         self.Admin_menu.add_command(label="Admin Registration", command=self.show_Admin_registration)
-        
-        
+
         # Add menus to the menu bar
         self.menu_bar.add_cascade(label="Member Registration", menu=registration_menu)
         self.menu_bar.add_cascade(label="Dashboard", menu=self.dashboard_menu)
         self.menu_bar.add_cascade(label="Admin Registration", menu=self.Admin_menu)
-        
 
         # Add the menu to the window
         self.root.config(menu=self.menu_bar)
-        
+
     def show_member_registration(self):
         from member_ragistation import MemberRegistration
         self.switch_frame(MemberRegistration)
@@ -147,7 +152,7 @@ class MainApp:
             self.current_frame.destroy()
         self.current_frame = ttk.Frame(self.root)
         self.current_frame.pack(fill="both", expand=True, padx=10, pady=10)
-        
+
         # Pass only the parent argument to AdminRegistration and MemberRegistration
         if FrameClass.__name__ in ["AdminRegistration", "MemberRegistration"]:
             FrameClass(self.current_frame)  # Only pass parent
