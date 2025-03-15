@@ -1,22 +1,18 @@
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import ttk
-from ttkthemes import ThemedTk  # type: ignore # Use ThemedTk for enhanced look and feel
-import db_manager # Importing the database management module
+from tkinter import messagebox, ttk
+from ttkthemes import ThemedTk
+import db_manager
 from main_window import MainApp
-
-# testing comment for git
 
 class MemberRegistration:
     def __init__(self, parent):
-        self.parent = parent  # This is the frame where widgets will be placed
-        self.frame = ttk.Frame(self.parent)  # Internal frame
+        self.parent = parent
+        self.frame = ttk.Frame(self.parent)
         self.frame.pack(fill="both", expand=True)
         self.current_page = 1
         self.items_per_page = 50
 
-        # Configure the parent window (if it's a Tk or Toplevel window)
-        if isinstance(self.parent.master, tk.Tk) or isinstance(self.parent.master, tk.Toplevel):
+        if isinstance(self.parent.master, (tk.Tk, tk.Toplevel)):
             self.parent.master.title("CGTTI Alumni Association")
             self.parent.master.geometry("1000x600")
             self.parent.master.state("zoomed")
@@ -26,178 +22,96 @@ class MemberRegistration:
         self.load_members()
 
     def create_widgets(self):
-        # === LEFT PANEL (Dark Gray Background) ===
-        left_frame = ttk.Frame(self.parent, width=300, height=600, relief="solid")  # Use self.parent
-        left_frame.pack(side="left", fill="y")
+        left_frame = ttk.Frame(self.parent, width=350, relief="solid")
+        left_frame.pack(side="left", fill="y", padx=10, pady=10)
 
-        # Logo
-        logo_label = ttk.Label(left_frame, text="CGTTI Alumni", font=("Arial", 14, "bold"))
-        logo_label.pack(pady=10)
+        ttk.Label(left_frame, text="CGTTI Alumni", font=("Arial", 14, "bold")).pack(pady=5)
+        ttk.Label(left_frame, text="MEMBER REGISTRATION", font=("Arial", 12, "bold"), foreground="blue").pack()
 
-        # Title
-        title_label = ttk.Label(left_frame, text="MEMBER REGISTRATION", font=("Arial", 12, "bold"), foreground="blue")
-        title_label.pack()
-
-        # === Form Fields ===
         fields = ["Training number", "Membership year", "Trade", "Name", "District", "Membership number", "Address", "Mobile", "Nic"]
         self.entries = {}
 
         for field in fields:
-            lbl = ttk.Label(left_frame, text=field, font=("Arial", 10), foreground="black")
-            lbl.pack(anchor="w", padx=10, pady=2)
-
+            ttk.Label(left_frame, text=field, font=("Arial", 10)).pack(anchor="w", padx=10, pady=2)
             if field == "Trade":
-                # List of Trades
-                trades = [
-                    "TOOL MACHINE TRADE",
-                    "MILLWRIGHT TRADE",
-                    "AUTO MOBILE TRADE",
-                    "BRP TRADE",
-                    "AUTO ELECTRICAL TRADE",
-                    "REF AND A/C TRADE",
-                    "MECHATRONIC TRADE",
-                    "DISAL PUMP TRADE",
-                    "WELDING TRADE",
-                    "POWER ELECTRICAL TRADE"
-                ]
-                entry = ttk.Combobox(left_frame, values=trades)
-            
+                entry = ttk.Combobox(left_frame, values=[
+                    "TOOL MACHINE TRADE", "MILLWRIGHT TRADE", "AUTO MOBILE TRADE", "BRP TRADE",
+                    "AUTO ELECTRICAL TRADE", "REF AND A/C TRADE", "MECHATRONIC TRADE",
+                    "DISAL PUMP TRADE", "WELDING TRADE", "POWER ELECTRICAL TRADE"
+                ])
             elif field == "District":
-                # List of Sri Lankan districts
-                districts = [
-                    "Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle", "Gampaha",
-                    "Hambantota", "Jaffna", "Kalutara", "Kandy", "Kegalle", "Kilinochchi", "Kurunegala",
-                    "Mannar", "Matale", "Matara", "Moneragala", "Mullaitivu", "Nuwara Eliya", "Polonnaruwa",
-                    "Puttalam", "Ratnapura", "Trincomalee", "Vavuniya"
-                ]
-                entry = ttk.Combobox(left_frame, values=districts)
-            
+                entry = ttk.Combobox(left_frame, values=[
+                    "Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle",
+                    "Gampaha", "Hambantota", "Jaffna", "Kalutara", "Kandy", "Kegalle",
+                    "Kilinochchi", "Kurunegala", "Mannar", "Matale", "Matara", "Moneragala",
+                    "Mullaitivu", "Nuwara Eliya", "Polonnaruwa", "Puttalam", "Ratnapura",
+                    "Trincomalee", "Vavuniya"
+                ])
             else:
                 entry = ttk.Entry(left_frame)
-
-            entry.pack(padx=8, pady=2, fill="x")
+            entry.pack(padx=10, pady=2, fill="x")
             self.entries[field] = entry
 
-        # === Payment Status (Radio Buttons) ===
         self.payment_status = tk.StringVar(value="Paid Up")
-        ttk.Radiobutton(left_frame, text="PAID UP",  variable=self.payment_status, value="Paid Up").pack(anchor="w", padx=10)
+        ttk.Radiobutton(left_frame, text="PAID UP", variable=self.payment_status, value="Paid Up").pack(anchor="w", padx=10)
         ttk.Radiobutton(left_frame, text="NON-PAID", variable=self.payment_status, value="Non-Paid").pack(anchor="w", padx=10)
 
-        # === Member Status (Checkboxes) ===
-        ttk.Label(left_frame, text="This member is dead", font=("Arial", 10, "bold"), foreground="black").pack(anchor="w", padx=10, pady=2)
         self.dead_var = tk.BooleanVar()
         self.alive_var = tk.BooleanVar()
-        ttk.Checkbutton(left_frame, text="(Click this only if dead)", variable=self.dead_var).pack(anchor="w", padx=10)
-        ttk.Checkbutton(left_frame, text="(Click this only if alive)", variable=self.alive_var).pack(anchor="w", padx=10)
+        ttk.Label(left_frame, text="Member Status", font=("Arial", 10, "bold")).pack(anchor="w", padx=10, pady=2)
+        ttk.Checkbutton(left_frame, text="Deceased", variable=self.dead_var).pack(anchor="w", padx=10)
+        ttk.Checkbutton(left_frame, text="Alive", variable=self.alive_var).pack(anchor="w", padx=10)
 
-        # === Buttons (SAVE, UPDATE, DELETE, LOAD) ===
         btn_frame = ttk.Frame(left_frame)
         btn_frame.pack(pady=10)
+        
+        for text, command in zip(["SAVE", "UPDATE", "DELETE", "LOAD"],
+                                  [self.save_member, self.update_member, self.delete_member, self.load_members]):
+            ttk.Button(btn_frame, text=text, width=10, command=command).pack(side="left", padx=3, pady=3)
 
-        # Define a style for the buttons
-        style = ttk.Style()
-        style.configure("TButton", font=("Arial", 10, "bold"), foreground="black")
+        right_frame = ttk.Frame(self.parent)
+        right_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
 
-        # Create buttons with the defined style
-        ttk.Button(btn_frame, text="SAVE", width=10, command=self.save_member, style="TButton").pack(side="left", padx=3, pady=3)
-        ttk.Button(btn_frame, text="UPDATE", width=10, command=self.update_member, style="TButton").pack(side="left", padx=3, pady=3)
-        ttk.Button(btn_frame, text="DELETE", width=10, command=self.delete_member, style="TButton").pack(side="left", padx=3, pady=3)
-        ttk.Button(btn_frame, text="LOAD", width=10, command=self.load_members, style="TButton").pack(side="left", padx=3, pady=3)
-
-        # === Treeview Section ===
-        right_frame = ttk.Frame(self.parent)  # Use self.parent
-        right_frame.pack(side="right", fill="both", expand=True)
-
-        # Search bar
         self.search_var = tk.StringVar()
-        search_entry = ttk.Entry(right_frame, textvariable=self.search_var, width=50)
-        search_entry.pack(pady=10)
+        ttk.Entry(right_frame, textvariable=self.search_var, width=50).pack(pady=10)
         ttk.Button(right_frame, text="SEARCH", command=self.search_member).pack(pady=5)
 
-        # Create a frame for the Treeview and its scrollbars
         tree_frame = ttk.Frame(right_frame)
         tree_frame.pack(fill="both", expand=True)
 
-        # Create the Treeview
-        columns = ("Trainingnumber", "Memberyear", "Trade", "MemberName", "District", "Membershipnumber", "Address", "Mobile", "Nic", "Paide", "LivingorDead")
+        columns = ["Trainingnumber", "Memberyear", "Trade", "MemberName", "District", "Membershipnumber",
+                   "Address", "Mobile", "Nic", "Paide", "LivingorDead"]
         self.tree = ttk.Treeview(tree_frame, columns=columns, show="headings")
+        
+        for col, width in zip(columns, [120, 100, 150, 200, 120, 150, 250, 120, 120, 100, 120]):
+            self.tree.heading(col, text=col, anchor=tk.CENTER)
+            self.tree.column(col, width=width, anchor=tk.CENTER)
 
-        # Add headings and columns
-        # Set specific widths for each column
-        self.tree.heading("Trainingnumber", text="Trainingnumber", anchor=tk.CENTER)
-        self.tree.column("Trainingnumber", width=120, anchor=tk.CENTER)  # Set width to 120
-
-        self.tree.heading("Memberyear", text="Memberyear", anchor=tk.CENTER)
-        self.tree.column("Memberyear", width=100, anchor=tk.CENTER)  # Set width to 100
-
-        self.tree.heading("Trade", text="Trade", anchor=tk.CENTER)
-        self.tree.column("Trade", width=150, anchor=tk.CENTER)  # Set width to 150
-
-        self.tree.heading("MemberName", text="MemberName", anchor=tk.CENTER)
-        self.tree.column("MemberName", width=200, anchor=tk.CENTER)  # Set width to 200
-
-        self.tree.heading("District", text="District", anchor=tk.CENTER)
-        self.tree.column("District", width=120, anchor=tk.CENTER)  # Set width to 120
-
-        self.tree.heading("Membershipnumber", text="Membershipnumber", anchor=tk.CENTER)
-        self.tree.column("Membershipnumber", width=150, anchor=tk.CENTER)  # Set width to 150
-
-        self.tree.heading("Address", text="Address", anchor=tk.CENTER)
-        self.tree.column("Address", width=250, anchor=tk.CENTER)  # Set width to 250
-
-        self.tree.heading("Mobile", text="Mobile", anchor=tk.CENTER)
-        self.tree.column("Mobile", width=120, anchor=tk.CENTER)  # Set width to 120
-
-        self.tree.heading("Nic", text="Nic", anchor=tk.CENTER)
-        self.tree.column("Nic", width=120, anchor=tk.CENTER)  # Set width to 120
-
-        self.tree.heading("Paide", text="Paide", anchor=tk.CENTER)
-        self.tree.column("Paide", width=100, anchor=tk.CENTER)  # Set width to 100
-
-        self.tree.heading("LivingorDead", text="LivingorDead", anchor=tk.CENTER)
-        self.tree.column("LivingorDead", width=120, anchor=tk.CENTER)  # Set width to 120
-
-        # Vertical Scrollbar
         v_scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=self.tree.yview)
-        v_scrollbar.pack(side="right", fill="y")
-
-        # Horizontal Scrollbar
         h_scrollbar = ttk.Scrollbar(tree_frame, orient="horizontal", command=self.tree.xview)
+        
+        v_scrollbar.pack(side="right", fill="y")
         h_scrollbar.pack(side="bottom", fill="x")
-
-        # Configure the Treeview to use the scrollbars
+        
         self.tree.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
-
-        # Pack the Treeview (ensure it expands to fill the space)
         self.tree.pack(fill="both", expand=True)
-
-        # Bind the selection event of the Treeview to the row selection handler
         self.tree.bind("<ButtonRelease-1>", self.on_row_select)
 
-        # Pagination controls
         pagination_frame = ttk.Frame(right_frame)
         pagination_frame.pack(fill="x", pady=10)
 
-        # Define a style for the buttons
-        style = ttk.Style()
-        style.configure("Pagination.TButton", font=("Arial", 10, "bold"), foreground="white")  # White text on blue background
-
-        # Previous Button
-        self.prev_button = ttk.Button(pagination_frame, text="Previous", command=self.prev_page, style="Pagination.TButton")
+        self.prev_button = ttk.Button(pagination_frame, text="Previous", command=self.prev_page)
         self.prev_button.pack(side="left", padx=10)
 
-        # Page Label
-        self.page_label = ttk.Label(pagination_frame, text="Page 1 of 1", font=("Arial", 12), foreground="black")  # Dark blue text
+        self.page_label = ttk.Label(pagination_frame, text="Page 1 of 1", font=("Arial", 12))
         self.page_label.pack(side="left", padx=10)
 
-        # Next Button
-        self.next_button = ttk.Button(pagination_frame, text="Next", command=self.next_page, style="Pagination.TButton")
+        self.next_button = ttk.Button(pagination_frame, text="Next", command=self.next_page)
         self.next_button.pack(side="left", padx=10)
 
-        # Section below Treeview
-        bottom_frame = ttk.Frame(right_frame)
-        bottom_frame.pack(fill="x", pady=10)
-        ttk.Label(bottom_frame, text="CGTTI Alumni Association", font=("Arial", 12)).pack()
+        ttk.Label(right_frame, text="CGTTI Alumni Association", font=("Arial", 12)).pack(pady=10)
+        
+        
     def on_row_select(self, event):
         """
         This function will fill the input fields with the selected row's data from the Treeview.
