@@ -5,6 +5,8 @@ from ttkthemes import ThemedTk  # type: ignore # Use ThemedTk for enhanced look 
 import db_manager # Importing the database management module
 from main_window import MainApp
 
+# testing comment for git
+
 class MemberRegistration:
     def __init__(self, parent):
         self.parent = parent  # This is the frame where widgets will be placed
