@@ -75,7 +75,7 @@ class MemberRegistration:
             else:
                 entry = ttk.Entry(left_frame)
 
-            entry.pack(padx=10, pady=2, fill="x")
+            entry.pack(padx=8, pady=2, fill="x")
             self.entries[field] = entry
 
         # === Payment Status (Radio Buttons) ===
@@ -114,21 +114,55 @@ class MemberRegistration:
         search_entry.pack(pady=10)
         ttk.Button(right_frame, text="SEARCH", command=self.search_member).pack(pady=5)
 
+        # Create a frame for the Treeview and its scrollbars
+        tree_frame = ttk.Frame(right_frame)
+        tree_frame.pack(fill="both", expand=True)
+
         # Create the Treeview
         columns = ("Trainingnumber", "Memberyear", "Trade", "MemberName", "District", "Membershipnumber", "Address", "Mobile", "Nic", "Paide", "LivingorDead")
-        self.tree = ttk.Treeview(right_frame, columns=columns, show="headings")
+        self.tree = ttk.Treeview(tree_frame, columns=columns, show="headings")
 
         # Add headings and columns
-        for col in columns:
-            self.tree.heading(col, text=col)
-            self.tree.column(col, width=100, anchor=tk.CENTER)
+        # Set specific widths for each column
+        self.tree.heading("Trainingnumber", text="Trainingnumber", anchor=tk.CENTER)
+        self.tree.column("Trainingnumber", width=120, anchor=tk.CENTER)  # Set width to 120
+
+        self.tree.heading("Memberyear", text="Memberyear", anchor=tk.CENTER)
+        self.tree.column("Memberyear", width=100, anchor=tk.CENTER)  # Set width to 100
+
+        self.tree.heading("Trade", text="Trade", anchor=tk.CENTER)
+        self.tree.column("Trade", width=150, anchor=tk.CENTER)  # Set width to 150
+
+        self.tree.heading("MemberName", text="MemberName", anchor=tk.CENTER)
+        self.tree.column("MemberName", width=200, anchor=tk.CENTER)  # Set width to 200
+
+        self.tree.heading("District", text="District", anchor=tk.CENTER)
+        self.tree.column("District", width=120, anchor=tk.CENTER)  # Set width to 120
+
+        self.tree.heading("Membershipnumber", text="Membershipnumber", anchor=tk.CENTER)
+        self.tree.column("Membershipnumber", width=150, anchor=tk.CENTER)  # Set width to 150
+
+        self.tree.heading("Address", text="Address", anchor=tk.CENTER)
+        self.tree.column("Address", width=250, anchor=tk.CENTER)  # Set width to 250
+
+        self.tree.heading("Mobile", text="Mobile", anchor=tk.CENTER)
+        self.tree.column("Mobile", width=120, anchor=tk.CENTER)  # Set width to 120
+
+        self.tree.heading("Nic", text="Nic", anchor=tk.CENTER)
+        self.tree.column("Nic", width=120, anchor=tk.CENTER)  # Set width to 120
+
+        self.tree.heading("Paide", text="Paide", anchor=tk.CENTER)
+        self.tree.column("Paide", width=100, anchor=tk.CENTER)  # Set width to 100
+
+        self.tree.heading("LivingorDead", text="LivingorDead", anchor=tk.CENTER)
+        self.tree.column("LivingorDead", width=120, anchor=tk.CENTER)  # Set width to 120
 
         # Vertical Scrollbar
-        v_scrollbar = ttk.Scrollbar(right_frame, orient="vertical", command=self.tree.yview)
+        v_scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=self.tree.yview)
         v_scrollbar.pack(side="right", fill="y")
 
         # Horizontal Scrollbar
-        h_scrollbar = ttk.Scrollbar(right_frame, orient="horizontal", command=self.tree.xview)
+        h_scrollbar = ttk.Scrollbar(tree_frame, orient="horizontal", command=self.tree.xview)
         h_scrollbar.pack(side="bottom", fill="x")
 
         # Configure the Treeview to use the scrollbars
@@ -164,7 +198,6 @@ class MemberRegistration:
         bottom_frame = ttk.Frame(right_frame)
         bottom_frame.pack(fill="x", pady=10)
         ttk.Label(bottom_frame, text="CGTTI Alumni Association", font=("Arial", 12)).pack()
-
     def on_row_select(self, event):
         """
         This function will fill the input fields with the selected row's data from the Treeview.
