@@ -56,6 +56,15 @@ class DBManager:
             )
             """)
             
+            self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS admins (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """)
+            
             # Add indexes for common search fields
             self.conn.execute("CREATE INDEX IF NOT EXISTS idx_member_name ON members(member_name)")
             self.conn.execute("CREATE INDEX IF NOT EXISTS idx_membership_number ON members(membership_number)")
@@ -171,6 +180,31 @@ class DBManager:
         except sqlite3.Error as e:
             messagebox.showerror("Database Error", f"Query failed: {str(e)}")
             return None
+
+    # Admin User Management ----------------------------------------------------
+    def register_user(self, username: str, password: str) -> bool:
+        """Register a new admin user"""
+        try:
+            query = "INSERT INTO admins (username, password) VALUES (?, ?)"
+            self.conn.execute(query, (username, password))
+            self.conn.commit()
+            return True
+        except sqlite3.IntegrityError:
+            messagebox.showerror("Registration Error", "Username already exists.")
+            return False
+        except sqlite3.Error as e:
+            messagebox.showerror("Database Error", f"Registration failed: {str(e)}")
+            return False
+
+    def authenticate_user(self, username: str, password: str) -> bool:
+        """Authenticate an admin user"""
+        try:
+            query = "SELECT * FROM admins WHERE username = ? AND password = ?"
+            cursor = self.conn.execute(query, (username, password))
+            return cursor.fetchone() is not None
+        except sqlite3.Error as e:
+            messagebox.showerror("Database Error", f"Authentication failed: {str(e)}")
+            return False
 
     # Utility Methods ----------------------------------------------------------
     def backup_database(self, backup_path: str) -> bool:

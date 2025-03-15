@@ -115,9 +115,16 @@ class MainApp:
         self.dashboard_menu = tk.Menu(self.menu_bar, tearoff=0)
         self.dashboard_menu.add_command(label="Dashboard", command=self.show_dashboard)
         
+        # Admin ragistation menu
+        self.Admin_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self.Admin_menu.add_command(label="Admin Registration", command=self.show_Admin_registration)
+        
+        
         # Add menus to the menu bar
-        self.menu_bar.add_cascade(label="Menu", menu=registration_menu)
+        self.menu_bar.add_cascade(label="Member Registration", menu=registration_menu)
         self.menu_bar.add_cascade(label="Dashboard", menu=self.dashboard_menu)
+        self.menu_bar.add_cascade(label="Admin Registration", menu=self.Admin_menu)
+        
 
         # Add the menu to the window
         self.root.config(menu=self.menu_bar)
@@ -129,6 +136,10 @@ class MainApp:
     def show_dashboard(self):
         from all_member import TradeDashboard
         self.switch_frame(TradeDashboard)
+        
+    def show_Admin_registration(self):
+        from admin import AdminRegistration 
+        self.switch_frame(AdminRegistration)
 
     def switch_frame(self, FrameClass):
         """Destroy the current frame and load a new one."""
@@ -137,8 +148,8 @@ class MainApp:
         self.current_frame = ttk.Frame(self.root)
         self.current_frame.pack(fill="both", expand=True, padx=10, pady=10)
         
-        # Pass only the parent argument to MemberRegistration
-        if FrameClass.__name__ == "MemberRegistration":
+        # Pass only the parent argument to AdminRegistration and MemberRegistration
+        if FrameClass.__name__ in ["AdminRegistration", "MemberRegistration"]:
             FrameClass(self.current_frame)  # Only pass parent
         else:
             FrameClass(self.current_frame, self)  # Pass both parent and controller for other frames
