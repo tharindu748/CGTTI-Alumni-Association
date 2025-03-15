@@ -124,6 +124,10 @@ class MainApp:
         self.dashboard_menu = tk.Menu(self.menu_bar, tearoff=0)
         self.dashboard_menu.add_command(label="Dashboard", command=self.show_dashboard)
         
+        # Dashboard menu
+        self.excel_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self.excel_menu.add_command(label="EXCEL", command=self.show_EXCEL)
+        
         # Admin registration menu
         self.Admin_menu = tk.Menu(self.menu_bar, tearoff=0)
         self.Admin_menu.add_command(label="Admin Registration", command=self.show_Admin_registration)
@@ -132,6 +136,7 @@ class MainApp:
         self.menu_bar.add_cascade(label="Member Registration", menu=registration_menu)
         self.menu_bar.add_cascade(label="Dashboard", menu=self.dashboard_menu)
         self.menu_bar.add_cascade(label="Admin Registration", menu=self.Admin_menu)
+        self.menu_bar.add_cascade(label="EXCEL", menu=self.excel_menu)
 
         # Add the menu to the window
         self.root.config(menu=self.menu_bar)
@@ -139,6 +144,11 @@ class MainApp:
     def show_member_registration(self):
         from member_ragistation import MemberRegistration
         self.switch_frame(MemberRegistration)
+        
+    def show_EXCEL(self):
+        from excel import DataImportFilterPage
+        self.switch_frame(DataImportFilterPage)
+        
         
     def show_dashboard(self):
         from all_member import TradeDashboard
@@ -156,7 +166,7 @@ class MainApp:
         self.current_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         # Pass only the parent argument to AdminRegistration and MemberRegistration
-        if FrameClass.__name__ in ["AdminRegistration", "MemberRegistration"]:
+        if FrameClass.__name__ in ["AdminRegistration", "DataImportFilterPage", "MemberRegistration"]:
             FrameClass(self.current_frame)  # Only pass parent
         else:
             FrameClass(self.current_frame, self)  # Pass both parent and controller for other frames

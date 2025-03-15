@@ -3,7 +3,6 @@ import os
 import sys
 from tkinter import messagebox
 from typing import Optional, List, Tuple
-import pandas as pd  # Import pandas for data manipulation and exporting to Excel
 
 class DBManager:
     @staticmethod
@@ -39,7 +38,8 @@ class DBManager:
         schema_version = 1  # Increment when changing schema
         
         with self.conn:
-            self.conn.execute(""" CREATE TABLE IF NOT EXISTS members (
+            self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS members (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 training_number TEXT UNIQUE NOT NULL,            
                 member_year TEXT NOT NULL,
@@ -53,14 +53,8 @@ class DBManager:
                 paid_status INTEGER DEFAULT 0 CHECK(paid_status IN (0, 1)),
                 living_status TEXT DEFAULT 'living' CHECK(living_status IN ('living', 'deceased')),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) """)
-            
-            self.conn.execute(""" CREATE TABLE IF NOT EXISTS admins (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) """)
+            )
+            """)
             
             # Add indexes for common search fields
             self.conn.execute("CREATE INDEX IF NOT EXISTS idx_member_name ON members(member_name)")
@@ -68,29 +62,6 @@ class DBManager:
             
             # Store schema version
             self.conn.execute("PRAGMA user_version = {}".format(schema_version))
-
-    # Export Data to Excel ------------------------------------------------------
-    def export_to_excel(self, file_path: str) -> bool:
-        """Export all member data to an Excel file"""
-        try:
-            # Fetch all members from the database
-            cursor = self.conn.execute("SELECT * FROM members")
-            columns = [column[0] for column in cursor.description]
-            
-            # Convert the data to a list of dictionaries
-            members_data = [dict(zip(columns, row)) for row in cursor.fetchall()]
-            
-            # Convert the data into a pandas DataFrame
-            df = pd.DataFrame(members_data)
-            
-            # Write the DataFrame to an Excel file
-            df.to_excel(file_path, index=False, engine='openpyxl')
-            
-            messagebox.showinfo("Success", f"Data successfully exported to {file_path}")
-            return True
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to export data: {str(e)}")
-            return False
 
     # CRUD Operations ----------------------------------------------------------
     def insert_member(self, member_data: dict) -> bool:
@@ -201,31 +172,6 @@ class DBManager:
             messagebox.showerror("Database Error", f"Query failed: {str(e)}")
             return None
 
-    # Admin User Management ----------------------------------------------------
-    def register_user(self, username: str, password: str) -> bool:
-        """Register a new admin user"""
-        try:
-            query = "INSERT INTO admins (username, password) VALUES (?, ?)"
-            self.conn.execute(query, (username, password))
-            self.conn.commit()
-            return True
-        except sqlite3.IntegrityError:
-            messagebox.showerror("Registration Error", "Username already exists.")
-            return False
-        except sqlite3.Error as e:
-            messagebox.showerror("Database Error", f"Registration failed: {str(e)}")
-            return False
-
-    def authenticate_user(self, username: str, password: str) -> bool:
-        """Authenticate an admin user"""
-        try:
-            query = "SELECT * FROM admins WHERE username = ? AND password = ?"
-            cursor = self.conn.execute(query, (username, password))
-            return cursor.fetchone() is not None
-        except sqlite3.Error as e:
-            messagebox.showerror("Database Error", f"Authentication failed: {str(e)}")
-            return False
-
     # Utility Methods ----------------------------------------------------------
     def backup_database(self, backup_path: str) -> bool:
         """Create a database backup"""
@@ -248,8 +194,21 @@ class DBManager:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-# Example usage to export to Excel:
 if __name__ == "__main__":
-    # Initialize DBManager and export data to Excel
+    # Test the database functionality
     with DBManager() as db:
-        db.export_to_excel("members_data.xlsx")  # Specify your desired file path
+        test_member = {
+            'training_number': 'TR-001',
+            'member_year': '2023',
+            'membership_number': 'M-001',
+            'member_name': 'John Doe',
+            'nic': '123456789X',
+            'paid_status': 1
+        }
+        
+        if db.insert_member(test_member):
+            print("Member inserted successfully")
+            member = db.get_member('M-001')
+            print("Retrieved member:", member)
+        else:
+            print("Failed to insert member")
