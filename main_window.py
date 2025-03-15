@@ -5,6 +5,8 @@ import sys
 from PIL import Image, ImageTk
 from ttkthemes import ThemedTk  # Import ThemedTk from ttkthemes
 
+# test comment  
+
 def get_absolute_path(relative_path):
     """Get the absolute path for files inside the .exe and when running normally."""
     base_path = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
